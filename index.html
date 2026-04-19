@@ -99,6 +99,7 @@
   <button class="zbtn" id="zoomOut">-</button>
   <span id="zoomLevel">100%</span>
   <button class="zbtn" id="zoomIn">+</button>
+  <button class="zbtn" id="zoomFit" style="font-size:11px;width:auto;padding:0 6px" title="Fit to view">Fit</button>
 </div>
 
 <div id="panel">
@@ -216,7 +217,8 @@ function layoutTree(flat) {
     kids.forEach(k => { const kw = widths[k]; pos(k, sx+kw/2, cy+68+VG); sx += kw+HG; });
   }
   const trw = roots.reduce((s,r) => s + widths[r.id], 0) + HG * (roots.length-1);
-  let sx = 420 - trw/2;
+  const cx = Math.max(trw / 2 + 40, window.innerWidth / 2);
+  let sx = cx - trw/2;
   roots.forEach(r => { const rw = widths[r.id]; pos(r.id, sx+rw/2, 110); sx += rw+HG; });
   return flat;
 }
@@ -454,6 +456,7 @@ function syncListToMap() {
     saveLocal();
     scheduleCloudPush();
     render();
+    fitToView();
   }, 500);
 }
 
@@ -495,6 +498,29 @@ canvas.addEventListener("wheel", e => {
 
 $("zoomIn").addEventListener("click", () => setZoom(zoom + 0.1));
 $("zoomOut").addEventListener("click", () => setZoom(zoom - 0.1));
+
+function fitToView() {
+  if (!nodes.length) return;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  nodes.forEach(n => {
+    minX = Math.min(minX, n.x - 100);
+    maxX = Math.max(maxX, n.x + 100);
+    minY = Math.min(minY, n.y - 30);
+    maxY = Math.max(maxY, n.y + 30);
+  });
+  const treeW = maxX - minX, treeH = maxY - minY;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const padding = 80;
+  const scaleX = (vw - padding * 2) / treeW;
+  const scaleY = (vh - padding * 2) / treeH;
+  zoom = Math.min(scaleX, scaleY, 1.5);
+  zoom = Math.max(0.25, Math.min(3, zoom));
+  pan.x = (vw - treeW * zoom) / 2 - minX * zoom;
+  pan.y = (vh - treeH * zoom) / 2 - minY * zoom + 20;
+  applyTransform();
+}
+
+$("zoomFit").addEventListener("click", fitToView);
 
 // ── Canvas pan ──
 canvas.addEventListener("mousedown", e => {
@@ -609,6 +635,7 @@ listbox.value = saved.listText;
 nodes = layoutTree(parseList(saved.listText));
 nodes.forEach(n => { if (saved.doneSet.has(n.text)) n.done = true; });
 render();
+fitToView();
 </script>
 </body>
 </html>
