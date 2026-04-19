@@ -412,14 +412,14 @@ function render() {
     div.addEventListener("mousedown", e => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
       dragging = n.id;
-      dragOff = { x: e.clientX / zoom - n.x - pan.x, y: e.clientY / zoom - n.y - pan.y };
+      dragOff = { x: (e.clientX - pan.x) / zoom - n.x, y: (e.clientY - pan.y) / zoom - n.y };
       e.preventDefault();
     });
     div.addEventListener("touchstart", e => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
       const t = e.touches[0];
       dragging = n.id;
-      dragOff = { x: t.clientX / zoom - n.x - pan.x, y: t.clientY / zoom - n.y - pan.y };
+      dragOff = { x: (t.clientX - pan.x) / zoom - n.x, y: (t.clientY - pan.y) / zoom - n.y };
     }, { passive: true });
 
     div.addEventListener("dblclick", e => {
@@ -533,7 +533,7 @@ canvas.addEventListener("touchstart", e => {
 window.addEventListener("mousemove", e => {
   if (dragging) {
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = e.clientX / zoom - dragOff.x - pan.x / zoom; n.y = e.clientY / zoom - dragOff.y - pan.y / zoom; render(); }
+    if (n) { n.x = (e.clientX - pan.x) / zoom - dragOff.x; n.y = (e.clientY - pan.y) / zoom - dragOff.y; render(); }
   } else if (panning) {
     pan = { x: e.clientX - panStart.x, y: e.clientY - panStart.y };
     applyTransform();
@@ -543,7 +543,7 @@ window.addEventListener("touchmove", e => {
   const t = e.touches[0];
   if (dragging) {
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = t.clientX / zoom - dragOff.x - pan.x / zoom; n.y = t.clientY / zoom - dragOff.y - pan.y / zoom; render(); }
+    if (n) { n.x = (t.clientX - pan.x) / zoom - dragOff.x; n.y = (t.clientY - pan.y) / zoom - dragOff.y; render(); }
   } else if (panning) {
     pan = { x: t.clientX - panStart.x, y: t.clientY - panStart.y };
     applyTransform();
