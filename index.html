@@ -61,7 +61,7 @@
 
   #canvas{width:100%;height:100%;position:relative;overflow:hidden}
   #world{position:absolute;top:0;left:0;transform-origin:0 0}
-  #lines{position:absolute;top:0;left:0;pointer-events:none;z-index:1}
+  #lines{position:absolute;top:0;left:0;width:20000px;height:20000px;pointer-events:none;z-index:1;overflow:visible}
 
   .node{position:absolute;transform:translate(-50%,-50%);border-radius:8px;padding:8px 12px;white-space:nowrap;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px;z-index:10;transition:opacity .25s,box-shadow .2s}
   .node.root{border:1px solid #5b5bd6;box-shadow:0 0 16px rgba(91,91,214,.25)}
@@ -358,12 +358,6 @@ function render() {
 
   const byId = {}; nodes.forEach(n => { byId[n.id] = n; });
 
-  let svgW = 0, svgH = 0;
-  nodes.forEach(n => { svgW = Math.max(svgW, n.x + 300); svgH = Math.max(svgH, n.y + 200); });
-  linesSvg.setAttribute("width", svgW);
-  linesSvg.setAttribute("height", svgH);
-  linesSvg.style.width = svgW + "px";
-  linesSvg.style.height = svgH + "px";
   linesSvg.innerHTML = "";
   nodes.forEach(n => {
     if (!n.parent || !byId[n.parent]) return;
