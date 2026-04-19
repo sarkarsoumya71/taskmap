@@ -19,6 +19,11 @@
   .topbtn{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s}
   .topbtn.active{background:#5b5bd6;color:#fff;border-color:#5b5bd6}
 
+  #zoomBadge{position:fixed;bottom:16px;left:16px;z-index:100;background:#141420;border:1px solid #2a2a3e;border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:8px}
+  #zoomBadge span{font-size:12px;color:#7a7a9a;font-weight:500;font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
+  .zbtn{width:24px;height:24px;border-radius:4px;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans',sans-serif;transition:all .15s;padding:0}
+  .zbtn:hover{border-color:#5b5bd6;color:#5b5bd6}
+
   #panel{position:fixed;top:58px;right:14px;width:270px;bottom:14px;z-index:90;background:#111119;border:1px solid #1e1e30;border-radius:10px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.5)}
   #panel.hidden{display:none}
   #panel .head{padding:10px 14px 8px;border-bottom:1px solid #1e1e30;display:flex;justify-content:space-between;align-items:center}
@@ -26,12 +31,36 @@
   #panel .head span:last-child{font-size:10px;color:#7a7a9a}
   #listbox{flex:1;background:transparent;border:none;color:#e0e0f0;font-size:13px;line-height:1.7;padding:12px 14px;resize:none;outline:none;font-family:'IBM Plex Mono',monospace;tab-size:2}
   #panel .foot{padding:8px 14px 6px;border-top:1px solid #1e1e30;display:flex;gap:6px}
-  .footbtn{flex:1;padding:6px 0;border-radius:5px;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;font-size:11px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
+  .footbtn{flex:1;padding:6px 0;border-radius:5px;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;font-size:11px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .15s}
+  .footbtn:hover{border-color:#5b5bd6;color:#5b5bd6}
   .footbtn.danger{color:#e5484d}
+  .footbtn.danger:hover{border-color:#e5484d}
+
+  /* Sync section */
+  #syncSection{padding:8px 14px;border-top:1px solid #1e1e30}
+  #syncSection .sync-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0}
+  #syncSection .sync-header span{font-size:11px;font-weight:600;color:#7a7a9a;text-transform:uppercase;letter-spacing:.06em}
+  #syncSection .sync-header .arrow{font-size:10px;color:#7a7a9a;transition:transform .2s}
+  #syncSection .sync-header .arrow.open{transform:rotate(180deg)}
+  #syncBody{overflow:hidden;transition:max-height .25s;max-height:0}
+  #syncBody.open{max-height:200px}
+  #syncBody .inner{padding:8px 0 4px}
+  .sync-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+  .sync-input{flex:1;background:#0a0a0f;border:1px solid #2a2a3e;border-radius:4px;padding:5px 8px;color:#e0e0f0;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none}
+  .sync-input:focus{border-color:#5b5bd6}
+  .sync-input::placeholder{color:#4a4a6a}
+  .syncbtn{padding:5px 10px;border-radius:4px;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;font-size:11px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;transition:all .15s}
+  .syncbtn:hover{border-color:#5b5bd6;color:#5b5bd6}
+  .syncbtn.primary{background:#5b5bd6;border-color:#5b5bd6;color:#fff}
+  .syncbtn.primary:hover{background:#6c6ce0}
+  #syncStatus{font-size:10px;color:#7a7a9a;padding:2px 0}
+  #syncStatus.ok{color:#3dd68c}
+  #syncStatus.err{color:#e5484d}
+
   #panel .status{padding:4px 14px 8px;font-size:10px;color:#7a7a9a;text-align:center}
 
   #canvas{width:100%;height:100%;position:relative;overflow:hidden}
-  #world{position:absolute;top:0;left:0}
+  #world{position:absolute;top:0;left:0;transform-origin:0 0}
   #lines{position:absolute;top:0;left:0;pointer-events:none;z-index:1}
 
   .node{position:absolute;transform:translate(-50%,-50%);border-radius:8px;padding:8px 12px;white-space:nowrap;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px;z-index:10;transition:opacity .25s,box-shadow .2s}
@@ -66,6 +95,12 @@
   </div>
 </div>
 
+<div id="zoomBadge">
+  <button class="zbtn" id="zoomOut">-</button>
+  <span id="zoomLevel">100%</span>
+  <button class="zbtn" id="zoomIn">+</button>
+</div>
+
 <div id="panel">
   <div class="head">
     <span>Task List</span>
@@ -77,7 +112,29 @@
     <button class="footbtn" id="importBtn">Import</button>
     <button class="footbtn danger" id="resetBtn">Reset</button>
   </div>
-  <div class="status">Auto-saves to this browser</div>
+  <div id="syncSection">
+    <div class="sync-header" id="syncToggle">
+      <span>Cloud Sync</span>
+      <span class="arrow" id="syncArrow">&#9660;</span>
+    </div>
+    <div id="syncBody">
+      <div class="inner">
+        <div class="sync-row">
+          <input class="sync-input" id="apiKeyInput" type="password" placeholder="JSONBin API key" />
+        </div>
+        <div class="sync-row">
+          <input class="sync-input" id="binIdInput" placeholder="Bin ID (blank = new)" />
+          <button class="syncbtn primary" id="syncSaveBtn">Save</button>
+        </div>
+        <div class="sync-row">
+          <button class="syncbtn" id="syncNowBtn">Sync Now</button>
+          <button class="syncbtn" id="syncPullBtn">Pull</button>
+        </div>
+        <div id="syncStatus"></div>
+      </div>
+    </div>
+  </div>
+  <div class="status">Auto-saves locally + cloud if configured</div>
 </div>
 
 <div id="canvas">
@@ -107,24 +164,18 @@ const SAMPLE = `Product Launch
 
 // ── State ──
 let nodes = [];
-let pan = { x: 0, y: 0 };
+let pan = { x: 0, y: 0 }, zoom = 1;
 let dragging = null, dragOff = { x: 0, y: 0 };
 let panning = false, panStart = { x: 0, y: 0 };
-let editingId = null;
-let debounceTimer = null;
-let skipSync = false;
+let editingId = null, debounceTimer = null, skipSync = false;
+let cloudTimer = null;
 
 const $ = id => document.getElementById(id);
-const listbox = $("listbox");
-const world = $("world");
-const linesSvg = $("lines");
-const canvas = $("canvas");
-const progfill = $("progfill");
-const counter = $("counter");
-const panel = $("panel");
-const toggleBtn = $("toggleBtn");
+const listbox = $("listbox"), world = $("world"), linesSvg = $("lines");
+const canvas = $("canvas"), progfill = $("progfill"), counter = $("counter");
+const panel = $("panel"), toggleBtn = $("toggleBtn");
 
-// ── Parse ──
+// ── Parse & Layout ──
 function parseList(text) {
   const lines = text.split("\n").filter(l => l.trim());
   const out = [], stack = [];
@@ -141,7 +192,6 @@ function parseList(text) {
   return out;
 }
 
-// ── Layout ──
 function layoutTree(flat) {
   if (!flat.length) return flat;
   const NW = 180, HG = 30, VG = 56;
@@ -189,15 +239,15 @@ function ancestorDone(nodeId) {
   return false;
 }
 
-// ── Storage ──
-function save() {
+// ── Local Storage ──
+function saveLocal() {
   try {
     const doneTexts = nodes.filter(n => n.done).map(n => n.text);
     localStorage.setItem("taskmap_data", JSON.stringify({ listText: listbox.value, doneTexts }));
   } catch(e) {}
 }
 
-function loadSaved() {
+function loadLocal() {
   try {
     const raw = localStorage.getItem("taskmap_data");
     if (raw) { const d = JSON.parse(raw); return { listText: d.listText || SAMPLE, doneSet: new Set(d.doneTexts || []) }; }
@@ -205,12 +255,97 @@ function loadSaved() {
   return { listText: SAMPLE, doneSet: new Set() };
 }
 
+// ── JSONBin Cloud Sync ──
+function getCloudConfig() {
+  try {
+    const raw = localStorage.getItem("taskmap_cloud");
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { apiKey: "", binId: "" };
+}
+
+function saveCloudConfig(apiKey, binId) {
+  localStorage.setItem("taskmap_cloud", JSON.stringify({ apiKey, binId }));
+}
+
+function setSyncStatus(msg, type) {
+  const el = $("syncStatus");
+  el.textContent = msg;
+  el.className = type === "ok" ? "ok" : type === "err" ? "err" : "";
+}
+
+async function cloudPush() {
+  const cfg = getCloudConfig();
+  if (!cfg.apiKey) return;
+
+  const doneTexts = nodes.filter(n => n.done).map(n => n.text);
+  const payload = { listText: listbox.value, doneTexts, updated: Date.now() };
+
+  try {
+    if (cfg.binId) {
+      // Update existing bin
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Push failed: " + res.status);
+      setSyncStatus("Synced " + new Date().toLocaleTimeString(), "ok");
+    } else {
+      // Create new bin
+      const res = await fetch("https://api.jsonbin.io/v3/b", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey, "X-Bin-Name": "taskmap" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Create failed: " + res.status);
+      const data = await res.json();
+      const newId = data.metadata.id;
+      $("binIdInput").value = newId;
+      saveCloudConfig(cfg.apiKey, newId);
+      setSyncStatus("Created bin " + newId, "ok");
+    }
+  } catch(e) {
+    setSyncStatus(e.message, "err");
+  }
+}
+
+async function cloudPull() {
+  const cfg = getCloudConfig();
+  if (!cfg.apiKey || !cfg.binId) { setSyncStatus("Need API key + Bin ID to pull", "err"); return; }
+
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
+      headers: { "X-Master-Key": cfg.apiKey }
+    });
+    if (!res.ok) throw new Error("Pull failed: " + res.status);
+    const data = await res.json();
+    const rec = data.record;
+    if (rec && rec.listText) {
+      listbox.value = rec.listText;
+      nodes = layoutTree(parseList(rec.listText));
+      const ds = new Set(rec.doneTexts || []);
+      nodes.forEach(n => { if (ds.has(n.text)) n.done = true; });
+      saveLocal();
+      render();
+      setSyncStatus("Pulled " + new Date().toLocaleTimeString(), "ok");
+    }
+  } catch(e) {
+    setSyncStatus(e.message, "err");
+  }
+}
+
+function scheduleCloudPush() {
+  const cfg = getCloudConfig();
+  if (!cfg.apiKey) return;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(() => cloudPush(), 3000); // Push 3s after last change
+}
+
 // ── Render ──
 function render() {
-  // Clear old nodes (keep SVG)
   world.querySelectorAll(".node").forEach(el => el.remove());
 
-  // Update progress
   const doneCount = nodes.filter(n => n.done).length;
   const total = nodes.length;
   const pct = total ? Math.round(doneCount/total*100) : 0;
@@ -221,9 +356,8 @@ function render() {
 
   const byId = {}; nodes.forEach(n => { byId[n.id] = n; });
 
-  // Draw lines
   let svgW = 0, svgH = 0;
-  nodes.forEach(n => { svgW = Math.max(svgW, n.x + 200); svgH = Math.max(svgH, n.y + 200); });
+  nodes.forEach(n => { svgW = Math.max(svgW, n.x + 300); svgH = Math.max(svgH, n.y + 200); });
   linesSvg.setAttribute("width", svgW);
   linesSvg.setAttribute("height", svgH);
   linesSvg.style.width = svgW + "px";
@@ -243,7 +377,6 @@ function render() {
     linesSvg.appendChild(path);
   });
 
-  // Draw nodes
   nodes.forEach(n => {
     const isRoot = !n.parent;
     const isDone = n.done;
@@ -257,21 +390,19 @@ function render() {
     div.style.top = n.y + "px";
     div.dataset.id = n.id;
 
-    // Checkbox
     const chk = document.createElement("button");
     chk.className = "chk" + (effectiveDone ? " checked" : "");
     if (effectiveDone) {
       chk.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.5L5 9L9.5 3.5" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     }
-    chk.addEventListener("click", e => { e.stopPropagation(); n.done = !n.done; save(); render(); });
+    chk.addEventListener("click", e => { e.stopPropagation(); n.done = !n.done; saveLocal(); scheduleCloudPush(); render(); });
     div.appendChild(chk);
 
-    // Label or edit
     if (editingId === n.id) {
       const inp = document.createElement("input");
       inp.className = "node-edit";
       inp.value = n.text;
-      inp.addEventListener("blur", () => { n.text = inp.value || "Untitled"; editingId = null; skipSync = true; listbox.value = serializeNodes(nodes); save(); render(); });
+      inp.addEventListener("blur", () => { n.text = inp.value || "Untitled"; editingId = null; skipSync = true; listbox.value = serializeNodes(nodes); saveLocal(); scheduleCloudPush(); render(); });
       inp.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === "Escape") inp.blur(); });
       div.appendChild(inp);
       setTimeout(() => inp.focus(), 0);
@@ -282,35 +413,36 @@ function render() {
       div.appendChild(span);
     }
 
-    // Drag
     div.addEventListener("mousedown", e => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
       dragging = n.id;
-      dragOff = { x: e.clientX - n.x - pan.x, y: e.clientY - n.y - pan.y };
+      dragOff = { x: e.clientX / zoom - n.x - pan.x, y: e.clientY / zoom - n.y - pan.y };
       e.preventDefault();
     });
     div.addEventListener("touchstart", e => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
       const t = e.touches[0];
       dragging = n.id;
-      dragOff = { x: t.clientX - n.x - pan.x, y: t.clientY - n.y - pan.y };
+      dragOff = { x: t.clientX / zoom - n.x - pan.x, y: t.clientY / zoom - n.y - pan.y };
     }, { passive: true });
 
-    // Double-click to edit
     div.addEventListener("dblclick", e => {
       if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
-      editingId = n.id;
-      render();
+      editingId = n.id; render();
     });
 
     world.appendChild(div);
   });
 
-  // Apply pan
-  world.style.transform = `translate(${pan.x}px, ${pan.y}px)`;
+  applyTransform();
 }
 
-// ── List → Map sync (debounced) ──
+function applyTransform() {
+  world.style.transform = `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`;
+  $("zoomLevel").textContent = Math.round(zoom * 100) + "%";
+}
+
+// ── List sync (debounced) ──
 function syncListToMap() {
   if (skipSync) { skipSync = false; return; }
   clearTimeout(debounceTimer);
@@ -319,14 +451,14 @@ function syncListToMap() {
     nodes.forEach(n => { if (n.done) oldDone[n.text] = true; });
     nodes = layoutTree(parseList(listbox.value));
     nodes.forEach(n => { if (oldDone[n.text]) n.done = true; });
-    save();
+    saveLocal();
+    scheduleCloudPush();
     render();
   }, 500);
 }
 
 listbox.addEventListener("input", syncListToMap);
 
-// Tab handling
 listbox.addEventListener("keydown", e => {
   if (e.key === "Tab") {
     e.preventDefault();
@@ -347,15 +479,32 @@ listbox.addEventListener("keydown", e => {
   }
 });
 
+// ── Zoom ──
+function setZoom(z) {
+  zoom = Math.min(3, Math.max(0.25, z));
+  applyTransform();
+}
+
+canvas.addEventListener("wheel", e => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    setZoom(zoom + delta);
+  }
+}, { passive: false });
+
+$("zoomIn").addEventListener("click", () => setZoom(zoom + 0.1));
+$("zoomOut").addEventListener("click", () => setZoom(zoom - 0.1));
+
 // ── Canvas pan ──
 canvas.addEventListener("mousedown", e => {
-  if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar")) return;
+  if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar") || e.target.closest("#zoomBadge")) return;
   panning = true;
   panStart = { x: e.clientX - pan.x, y: e.clientY - pan.y };
   canvas.style.cursor = "grabbing";
 });
 canvas.addEventListener("touchstart", e => {
-  if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar")) return;
+  if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar") || e.target.closest("#zoomBadge")) return;
   const t = e.touches[0];
   panning = true;
   panStart = { x: t.clientX - pan.x, y: t.clientY - pan.y };
@@ -364,20 +513,20 @@ canvas.addEventListener("touchstart", e => {
 window.addEventListener("mousemove", e => {
   if (dragging) {
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = e.clientX - dragOff.x - pan.x; n.y = e.clientY - dragOff.y - pan.y; render(); }
+    if (n) { n.x = e.clientX / zoom - dragOff.x - pan.x / zoom; n.y = e.clientY / zoom - dragOff.y - pan.y / zoom; render(); }
   } else if (panning) {
     pan = { x: e.clientX - panStart.x, y: e.clientY - panStart.y };
-    world.style.transform = `translate(${pan.x}px, ${pan.y}px)`;
+    applyTransform();
   }
 });
 window.addEventListener("touchmove", e => {
   const t = e.touches[0];
   if (dragging) {
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = t.clientX - dragOff.x - pan.x; n.y = t.clientY - dragOff.y - pan.y; render(); }
+    if (n) { n.x = t.clientX / zoom - dragOff.x - pan.x / zoom; n.y = t.clientY / zoom - dragOff.y - pan.y / zoom; render(); }
   } else if (panning) {
     pan = { x: t.clientX - panStart.x, y: t.clientY - panStart.y };
-    world.style.transform = `translate(${pan.x}px, ${pan.y}px)`;
+    applyTransform();
   }
 }, { passive: false });
 
@@ -392,6 +541,29 @@ toggleBtn.addEventListener("click", () => {
   toggleBtn.textContent = showList ? "Hide List" : "Edit List";
   toggleBtn.classList.toggle("active", showList);
 });
+
+// ── Sync panel toggle ──
+let syncOpen = false;
+$("syncToggle").addEventListener("click", () => {
+  syncOpen = !syncOpen;
+  $("syncBody").classList.toggle("open", syncOpen);
+  $("syncArrow").classList.toggle("open", syncOpen);
+});
+
+// Load cloud config into inputs
+const cloudCfg = getCloudConfig();
+$("apiKeyInput").value = cloudCfg.apiKey;
+$("binIdInput").value = cloudCfg.binId;
+
+$("syncSaveBtn").addEventListener("click", () => {
+  const apiKey = $("apiKeyInput").value.trim();
+  const binId = $("binIdInput").value.trim();
+  saveCloudConfig(apiKey, binId);
+  setSyncStatus("Config saved", "ok");
+});
+
+$("syncNowBtn").addEventListener("click", () => cloudPush());
+$("syncPullBtn").addEventListener("click", () => cloudPull());
 
 // ── Export / Import / Reset ──
 $("exportBtn").addEventListener("click", () => {
@@ -413,7 +585,7 @@ $("importBtn").addEventListener("click", () => {
           nodes = layoutTree(parseList(d.listText));
           const ds = new Set(d.doneTexts || []);
           nodes.forEach(n => { if (ds.has(n.text)) n.done = true; });
-          save(); render();
+          saveLocal(); scheduleCloudPush(); render();
         }
       } catch(err) { alert("Invalid file."); }
     };
@@ -432,7 +604,7 @@ $("resetBtn").addEventListener("click", () => {
 });
 
 // ── Init ──
-const saved = loadSaved();
+const saved = loadLocal();
 listbox.value = saved.listText;
 nodes = layoutTree(parseList(saved.listText));
 nodes.forEach(n => { if (saved.doneSet.has(n.text)) n.done = true; });
