@@ -10,6 +10,7 @@
   html,body{width:100%;height:100%;overflow:hidden;background:#0a0a0f;font-family:'IBM Plex Sans',system-ui,sans-serif}
 
   #topbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(10,10,15,.97) 70%,transparent)}
+  #topbar .left{display:flex;align-items:center;gap:16px}
   #topbar .title{font-size:17px;font-weight:600;color:#e0e0f0;letter-spacing:-.02em}
   #topbar .sub{font-size:11px;color:#7a7a9a;margin-top:1px}
   #topbar .right{display:flex;align-items:center;gap:12px}
@@ -19,10 +20,23 @@
   .topbtn{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .2s}
   .topbtn.active{background:#5b5bd6;color:#fff;border-color:#5b5bd6}
 
+  /* Filter pills */
+  .filter-group{display:flex;gap:4px;margin-left:8px}
+  .fpill{padding:4px 10px;border-radius:4px;font-size:11px;font-weight:500;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .15s}
+  .fpill:hover{border-color:#5b5bd6}
+  .fpill.active-all{background:#5b5bd6;color:#fff;border-color:#5b5bd6}
+  .fpill.active-high{background:#e5484d;color:#fff;border-color:#e5484d}
+
   #zoomBadge{position:fixed;bottom:16px;left:16px;z-index:100;background:#141420;border:1px solid #2a2a3e;border-radius:6px;padding:6px 12px;display:flex;align-items:center;gap:8px}
   #zoomBadge span{font-size:12px;color:#7a7a9a;font-weight:500;font-variant-numeric:tabular-nums;min-width:36px;text-align:center}
   .zbtn{width:24px;height:24px;border-radius:4px;border:1px solid #2a2a3e;background:transparent;color:#7a7a9a;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans',sans-serif;transition:all .15s;padding:0}
   .zbtn:hover{border-color:#5b5bd6;color:#5b5bd6}
+
+  /* Hold indicator */
+  #holdRing{position:fixed;pointer-events:none;z-index:200;width:48px;height:48px;border-radius:50%;border:3px solid #5b5bd6;display:none;transform:translate(-50%,-50%)}
+  #holdRing.active{display:block;animation:holdPulse 1s ease-out forwards}
+  #holdRing.locked{display:block;border-color:#3dd68c;box-shadow:0 0 16px rgba(61,214,140,.4);animation:none}
+  @keyframes holdPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}50%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}}
 
   #panel{position:fixed;top:58px;right:14px;width:270px;bottom:14px;z-index:90;background:#111119;border:1px solid #1e1e30;border-radius:10px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.5)}
   #panel.hidden{display:none}
@@ -36,8 +50,26 @@
   .footbtn.danger{color:#e5484d}
   .footbtn.danger:hover{border-color:#e5484d}
 
-  /* Sync section */
   #syncSection{padding:8px 14px;border-top:1px solid #1e1e30}
+
+  /* AI section */
+  #aiSection{padding:8px 14px;border-top:1px solid #1e1e30}
+  #aiSection .ai-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0}
+  #aiSection .ai-header span{font-size:11px;font-weight:600;color:#7a7a9a;text-transform:uppercase;letter-spacing:.06em}
+  #aiSection .ai-header .arrow{font-size:10px;color:#7a7a9a;transition:transform .2s}
+  #aiSection .ai-header .arrow.open{transform:rotate(180deg)}
+  #aiBody{overflow:hidden;transition:max-height .25s;max-height:0}
+  #aiBody.open{max-height:300px}
+  #aiBody .inner{padding:8px 0 4px}
+  #aiInput{width:100%;background:#0a0a0f;border:1px solid #2a2a3e;border-radius:4px;padding:8px;color:#e0e0f0;font-size:12px;font-family:'IBM Plex Sans',sans-serif;outline:none;resize:none;line-height:1.5;min-height:60px}
+  #aiInput:focus{border-color:#5b5bd6}
+  #aiInput::placeholder{color:#4a4a6a}
+  .ai-actions{display:flex;gap:6px;margin-top:6px}
+  .ai-actions .syncbtn{flex:1}
+  #aiStatus{font-size:10px;color:#7a7a9a;padding:4px 0 0;min-height:16px}
+  #aiStatus.ok{color:#3dd68c}
+  #aiStatus.err{color:#e5484d}
+  #aiStatus.loading{color:#5b5bd6}
   #syncSection .sync-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:2px 0}
   #syncSection .sync-header span{font-size:11px;font-weight:600;color:#7a7a9a;text-transform:uppercase;letter-spacing:.06em}
   #syncSection .sync-header .arrow{font-size:10px;color:#7a7a9a;transition:transform .2s}
@@ -69,9 +101,16 @@
   .node.done-self{background:rgba(20,20,32,.5)}
   .node.done-ancestor{opacity:.45}
   .node:not(.done-self):not(.done-ancestor){background:#141420}
+  .node.high-priority{border-color:#e5484d!important;box-shadow:0 0 12px rgba(229,72,77,.2)!important}
+  .node.group-locked{box-shadow:0 0 20px rgba(61,214,140,.3)!important;border-color:#3dd68c!important}
 
   .chk{width:16px;height:16px;min-width:16px;border-radius:3px;border:2px solid #2a2a3e;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0;flex-shrink:0}
   .chk.checked{border-color:#3dd68c;background:#3dd68c;box-shadow:0 0 8px rgba(61,214,140,.2)}
+
+  .pri-dot{width:8px;height:8px;min-width:8px;border-radius:50%;cursor:pointer;transition:all .2s;flex-shrink:0}
+  .pri-dot.normal{background:#2a2a3e}
+  .pri-dot.normal:hover{background:#e5484d}
+  .pri-dot.high{background:#e5484d;box-shadow:0 0 6px rgba(229,72,77,.4)}
 
   .node-label{font-size:12.5px;font-weight:400;color:#e0e0f0;line-height:1.3;font-family:'IBM Plex Sans',sans-serif}
   .node.root .node-label{font-size:14px;font-weight:600}
@@ -84,9 +123,15 @@
 <body>
 
 <div id="topbar">
-  <div>
-    <div class="title">TaskMap</div>
-    <div class="sub">Write the list. Get the map.</div>
+  <div class="left">
+    <div>
+      <div class="title">TaskMap</div>
+      <div class="sub">Write the list. Get the map.</div>
+    </div>
+    <div class="filter-group">
+      <button class="fpill active-all" id="filterAll">All</button>
+      <button class="fpill" id="filterHigh">High Priority</button>
+    </div>
   </div>
   <div class="right">
     <div class="progress-track"><div class="progress-fill" id="progfill"></div></div>
@@ -102,6 +147,8 @@
   <button class="zbtn" id="zoomFit" style="font-size:11px;width:auto;padding:0 6px" title="Fit to view">Fit</button>
 </div>
 
+<div id="holdRing"></div>
+
 <div id="panel">
   <div class="head">
     <span>Task List</span>
@@ -112,6 +159,26 @@
     <button class="footbtn" id="exportBtn">Export</button>
     <button class="footbtn" id="importBtn">Import</button>
     <button class="footbtn danger" id="resetBtn">Reset</button>
+  </div>
+  <div id="aiSection">
+    <div class="ai-header" id="aiToggle">
+      <span>AI Add Tasks</span>
+      <span class="arrow" id="aiArrow">&#9660;</span>
+    </div>
+    <div id="aiBody">
+      <div class="inner">
+        <div class="sync-row">
+          <input class="sync-input" id="groqKeyInput" type="password" placeholder="Groq API key" />
+          <button class="syncbtn" id="groqKeySave">Save</button>
+        </div>
+        <textarea id="aiInput" placeholder="Just describe your tasks naturally...&#10;e.g. &quot;I need to do competitor research, set up the landing page and write copy for it, also review mockups&quot;" rows="3"></textarea>
+        <div class="ai-actions">
+          <button class="syncbtn primary" id="aiAppendBtn">Add to list</button>
+          <button class="syncbtn" id="aiReplaceBtn">Replace list</button>
+        </div>
+        <div id="aiStatus"></div>
+      </div>
+    </div>
   </div>
   <div id="syncSection">
     <div class="sync-header" id="syncToggle">
@@ -167,14 +234,38 @@ const SAMPLE = `Product Launch
 let nodes = [];
 let pan = { x: 0, y: 0 }, zoom = 1;
 let dragging = null, dragOff = { x: 0, y: 0 };
+let groupDrag = false; // true = dragging whole subtree
+let dragDescendants = []; // ids of nodes moving with dragged node
+let dragStartPositions = {}; // snapshot of positions at drag start
+let holdTimer = null, holdNodeId = null, holdStartTime = 0;
 let panning = false, panStart = { x: 0, y: 0 };
 let editingId = null, debounceTimer = null, skipSync = false;
 let cloudTimer = null;
+let activeFilter = "all"; // "all" or "high"
+
+const HOLD_DURATION = 1500; // ms to hold for group drag
 
 const $ = id => document.getElementById(id);
 const listbox = $("listbox"), world = $("world"), linesSvg = $("lines");
 const canvas = $("canvas"), progfill = $("progfill"), counter = $("counter");
 const panel = $("panel"), toggleBtn = $("toggleBtn");
+const holdRing = $("holdRing");
+
+// ── Helpers ──
+function getDescendants(nodeId) {
+  const ids = [];
+  const childrenOf = {};
+  nodes.forEach(n => { if (n.parent) { (childrenOf[n.parent] = childrenOf[n.parent] || []).push(n.id); }});
+  function collect(id) {
+    (childrenOf[id] || []).forEach(c => { ids.push(c); collect(c); });
+  }
+  collect(nodeId);
+  return ids;
+}
+
+function hasChildren(nodeId) {
+  return nodes.some(n => n.parent === nodeId);
+}
 
 // ── Parse & Layout ──
 function parseList(text) {
@@ -187,7 +278,7 @@ function parseList(text) {
     const id = Math.random().toString(36).slice(2,9);
     while (stack.length && stack[stack.length-1].indent >= indent) stack.pop();
     const parent = stack.length ? stack[stack.length-1].id : null;
-    out.push({ id, text: content, parent, done: false, x: 0, y: 0 });
+    out.push({ id, text: content, parent, done: false, priority: "normal", x: 0, y: 0 });
     stack.push({ id, indent });
   });
   return out;
@@ -241,112 +332,154 @@ function ancestorDone(nodeId) {
   return false;
 }
 
+// ── Priority filter view ──
+function getFilteredView() {
+  if (activeFilter === "all") return nodes;
+
+  // High priority filter: show only high-priority nodes
+  const highNodes = nodes.filter(n => n.priority === "high");
+  if (!highNodes.length) return [];
+
+  // Create a virtual tree with "High Priority" as root
+  const virtualRoot = {
+    id: "__high_root__", text: "High Priority", parent: null,
+    done: false, priority: "high", x: 0, y: 0
+  };
+  const virtualNodes = [virtualRoot];
+  highNodes.forEach(n => {
+    virtualNodes.push({
+      ...n, parent: "__high_root__",
+      // Include this node's children that are also high priority
+    });
+  });
+
+  return layoutTree(virtualNodes);
+}
+
 // ── Local Storage ──
 function saveLocal() {
   try {
     const doneTexts = nodes.filter(n => n.done).map(n => n.text);
-    localStorage.setItem("taskmap_data", JSON.stringify({ listText: listbox.value, doneTexts }));
+    const highTexts = nodes.filter(n => n.priority === "high").map(n => n.text);
+    localStorage.setItem("taskmap_data", JSON.stringify({ listText: listbox.value, doneTexts, highTexts }));
   } catch(e) {}
 }
 
 function loadLocal() {
   try {
     const raw = localStorage.getItem("taskmap_data");
-    if (raw) { const d = JSON.parse(raw); return { listText: d.listText || SAMPLE, doneSet: new Set(d.doneTexts || []) }; }
+    if (raw) {
+      const d = JSON.parse(raw);
+      return {
+        listText: d.listText || SAMPLE,
+        doneSet: new Set(d.doneTexts || []),
+        highSet: new Set(d.highTexts || [])
+      };
+    }
   } catch(e) {}
-  return { listText: SAMPLE, doneSet: new Set() };
+  return { listText: SAMPLE, doneSet: new Set(), highSet: new Set() };
 }
 
 // ── JSONBin Cloud Sync ──
 function getCloudConfig() {
-  try {
-    const raw = localStorage.getItem("taskmap_cloud");
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
+  try { const raw = localStorage.getItem("taskmap_cloud"); if (raw) return JSON.parse(raw); } catch(e) {}
   return { apiKey: "", binId: "" };
 }
-
-function saveCloudConfig(apiKey, binId) {
-  localStorage.setItem("taskmap_cloud", JSON.stringify({ apiKey, binId }));
-}
-
-function setSyncStatus(msg, type) {
-  const el = $("syncStatus");
-  el.textContent = msg;
-  el.className = type === "ok" ? "ok" : type === "err" ? "err" : "";
-}
+function saveCloudConfig(a, b) { localStorage.setItem("taskmap_cloud", JSON.stringify({ apiKey: a, binId: b })); }
+function setSyncStatus(msg, type) { const el = $("syncStatus"); el.textContent = msg; el.className = type === "ok" ? "ok" : type === "err" ? "err" : ""; }
 
 async function cloudPush() {
   const cfg = getCloudConfig();
   if (!cfg.apiKey) return;
-
   const doneTexts = nodes.filter(n => n.done).map(n => n.text);
-  const payload = { listText: listbox.value, doneTexts, updated: Date.now() };
-
+  const highTexts = nodes.filter(n => n.priority === "high").map(n => n.text);
+  const payload = { listText: listbox.value, doneTexts, highTexts, updated: Date.now() };
   try {
     if (cfg.binId) {
-      // Update existing bin
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, { method: "PUT", headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error("Push failed: " + res.status);
       setSyncStatus("Synced " + new Date().toLocaleTimeString(), "ok");
     } else {
-      // Create new bin
-      const res = await fetch("https://api.jsonbin.io/v3/b", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey, "X-Bin-Name": "taskmap" },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch("https://api.jsonbin.io/v3/b", { method: "POST", headers: { "Content-Type": "application/json", "X-Master-Key": cfg.apiKey, "X-Bin-Name": "taskmap" }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error("Create failed: " + res.status);
       const data = await res.json();
-      const newId = data.metadata.id;
-      $("binIdInput").value = newId;
-      saveCloudConfig(cfg.apiKey, newId);
-      setSyncStatus("Created bin " + newId, "ok");
+      $("binIdInput").value = data.metadata.id;
+      saveCloudConfig(cfg.apiKey, data.metadata.id);
+      setSyncStatus("Created bin " + data.metadata.id, "ok");
     }
-  } catch(e) {
-    setSyncStatus(e.message, "err");
-  }
+  } catch(e) { setSyncStatus(e.message, "err"); }
 }
 
 async function cloudPull() {
   const cfg = getCloudConfig();
-  if (!cfg.apiKey || !cfg.binId) { setSyncStatus("Need API key + Bin ID to pull", "err"); return; }
-
+  if (!cfg.apiKey || !cfg.binId) { setSyncStatus("Need API key + Bin ID", "err"); return; }
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
-      headers: { "X-Master-Key": cfg.apiKey }
-    });
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, { headers: { "X-Master-Key": cfg.apiKey } });
     if (!res.ok) throw new Error("Pull failed: " + res.status);
-    const data = await res.json();
-    const rec = data.record;
+    const rec = (await res.json()).record;
     if (rec && rec.listText) {
       listbox.value = rec.listText;
       nodes = layoutTree(parseList(rec.listText));
-      const ds = new Set(rec.doneTexts || []);
-      nodes.forEach(n => { if (ds.has(n.text)) n.done = true; });
-      saveLocal();
-      render();
-      setSyncStatus("Pulled " + new Date().toLocaleTimeString(), "ok");
+      const ds = new Set(rec.doneTexts || []), hs = new Set(rec.highTexts || []);
+      nodes.forEach(n => { if (ds.has(n.text)) n.done = true; if (hs.has(n.text)) n.priority = "high"; });
+      saveLocal(); render(); setSyncStatus("Pulled " + new Date().toLocaleTimeString(), "ok");
     }
-  } catch(e) {
-    setSyncStatus(e.message, "err");
-  }
+  } catch(e) { setSyncStatus(e.message, "err"); }
 }
 
 function scheduleCloudPush() {
-  const cfg = getCloudConfig();
-  if (!cfg.apiKey) return;
+  if (!getCloudConfig().apiKey) return;
   clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(() => cloudPush(), 3000); // Push 3s after last change
+  cloudTimer = setTimeout(() => cloudPush(), 3000);
+}
+
+// ── Hold detection for group drag ──
+function startHold(nodeId, screenX, screenY) {
+  clearHold();
+  if (!hasChildren(nodeId)) return; // Only nodes with children can group-drag
+  holdNodeId = nodeId;
+  holdStartTime = Date.now();
+
+  // Show ring
+  holdRing.style.left = screenX + "px";
+  holdRing.style.top = screenY + "px";
+  holdRing.className = "active";
+  holdRing.style.animationDuration = HOLD_DURATION + "ms";
+
+  holdTimer = setTimeout(() => {
+    // Hold completed - activate group drag
+    groupDrag = true;
+    holdRing.className = "locked";
+    dragDescendants = getDescendants(nodeId);
+
+    // Snapshot positions
+    dragStartPositions = {};
+    const main = nodes.find(n => n.id === nodeId);
+    if (main) {
+      dragStartPositions[nodeId] = { x: main.x, y: main.y };
+      dragDescendants.forEach(did => {
+        const dn = nodes.find(n => n.id === did);
+        if (dn) dragStartPositions[did] = { x: dn.x, y: dn.y };
+      });
+    }
+
+    render(); // Re-render to show group-locked style
+  }, HOLD_DURATION);
+}
+
+function clearHold() {
+  clearTimeout(holdTimer);
+  holdTimer = null;
+  holdNodeId = null;
+  holdRing.className = "";
+  holdRing.style.display = "";
 }
 
 // ── Render ──
 function render() {
   world.querySelectorAll(".node").forEach(el => el.remove());
+
+  const displayNodes = activeFilter === "all" ? nodes : getFilteredView();
 
   const doneCount = nodes.filter(n => n.done).length;
   const total = nodes.length;
@@ -356,49 +489,80 @@ function render() {
   counter.textContent = doneCount + "/" + total;
   counter.style.color = pct === 100 ? "#3dd68c" : "#7a7a9a";
 
-  const byId = {}; nodes.forEach(n => { byId[n.id] = n; });
+  const byId = {}; displayNodes.forEach(n => { byId[n.id] = n; });
 
   linesSvg.innerHTML = "";
-  nodes.forEach(n => {
+  displayNodes.forEach(n => {
     if (!n.parent || !byId[n.parent]) return;
     const p = byId[n.parent];
     const d = n.done && p.done;
     const my = (p.y + n.y) / 2;
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", `M ${p.x} ${p.y} C ${p.x} ${my}, ${n.x} ${my}, ${n.x} ${n.y}`);
-    path.setAttribute("stroke", d ? "#1a1a2e" : "#2a2a3e");
+    path.setAttribute("stroke", d ? "#1a1a2e" : n.priority === "high" ? "rgba(229,72,77,.35)" : "#2a2a3e");
     path.setAttribute("stroke-width", "1.5");
     path.setAttribute("fill", "none");
     if (d) path.setAttribute("stroke-dasharray", "4 4");
     linesSvg.appendChild(path);
   });
 
-  nodes.forEach(n => {
+  displayNodes.forEach(n => {
     const isRoot = !n.parent;
     const isDone = n.done;
     const isAncDone = ancestorDone(n.id);
     const effectiveDone = isDone || isAncDone;
+    const isHighPri = n.priority === "high";
+    const isGroupLocked = groupDrag && (n.id === dragging || dragDescendants.includes(n.id));
 
     const div = document.createElement("div");
-    div.className = "node" + (isRoot ? " root" : " child") + (isDone ? " done-self" : "") + (isAncDone && !isDone ? " done-ancestor" : "");
+    let cls = "node" + (isRoot ? " root" : " child");
+    if (isDone) cls += " done-self";
+    if (isAncDone && !isDone) cls += " done-ancestor";
+    if (isHighPri) cls += " high-priority";
+    if (isGroupLocked) cls += " group-locked";
+    div.className = cls;
     if (!isDone && !isAncDone) div.style.background = "#141420";
     div.style.left = n.x + "px";
     div.style.top = n.y + "px";
     div.dataset.id = n.id;
 
+    // Checkbox
     const chk = document.createElement("button");
     chk.className = "chk" + (effectiveDone ? " checked" : "");
     if (effectiveDone) {
       chk.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.5L5 9L9.5 3.5" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     }
-    chk.addEventListener("click", e => { e.stopPropagation(); n.done = !n.done; saveLocal(); scheduleCloudPush(); render(); });
+    chk.addEventListener("click", e => {
+      e.stopPropagation();
+      // Find the real node (not filtered copy)
+      const real = nodes.find(rn => rn.text === n.text);
+      if (real) { real.done = !real.done; saveLocal(); scheduleCloudPush(); render(); }
+    });
     div.appendChild(chk);
 
+    // Priority dot
+    const dot = document.createElement("div");
+    dot.className = "pri-dot " + (isHighPri ? "high" : "normal");
+    dot.title = isHighPri ? "Remove high priority" : "Set high priority";
+    dot.addEventListener("click", e => {
+      e.stopPropagation();
+      const real = nodes.find(rn => rn.text === n.text);
+      if (real) { real.priority = real.priority === "high" ? "normal" : "high"; saveLocal(); scheduleCloudPush(); render(); }
+    });
+    div.appendChild(dot);
+
+    // Label / edit
     if (editingId === n.id) {
       const inp = document.createElement("input");
       inp.className = "node-edit";
       inp.value = n.text;
-      inp.addEventListener("blur", () => { n.text = inp.value || "Untitled"; editingId = null; skipSync = true; listbox.value = serializeNodes(nodes); saveLocal(); scheduleCloudPush(); render(); });
+      inp.addEventListener("blur", () => {
+        const real = nodes.find(rn => rn.id === n.id);
+        if (real) real.text = inp.value || "Untitled";
+        editingId = null; skipSync = true;
+        listbox.value = serializeNodes(nodes);
+        saveLocal(); scheduleCloudPush(); render();
+      });
       inp.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === "Escape") inp.blur(); });
       div.appendChild(inp);
       setTimeout(() => inp.focus(), 0);
@@ -409,21 +573,28 @@ function render() {
       div.appendChild(span);
     }
 
+    // Drag handlers
     div.addEventListener("mousedown", e => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
       dragging = n.id;
+      groupDrag = false;
+      dragDescendants = [];
       dragOff = { x: (e.clientX - pan.x) / zoom - n.x, y: (e.clientY - pan.y) / zoom - n.y };
+      startHold(n.id, e.clientX, e.clientY);
       e.preventDefault();
     });
     div.addEventListener("touchstart", e => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
       const t = e.touches[0];
       dragging = n.id;
+      groupDrag = false;
+      dragDescendants = [];
       dragOff = { x: (t.clientX - pan.x) / zoom - n.x, y: (t.clientY - pan.y) / zoom - n.y };
+      startHold(n.id, t.clientX, t.clientY);
     }, { passive: true });
 
     div.addEventListener("dblclick", e => {
-      if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+      if (e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
       editingId = n.id; render();
     });
 
@@ -443,19 +614,15 @@ function syncListToMap() {
   if (skipSync) { skipSync = false; return; }
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    const oldDone = {};
-    nodes.forEach(n => { if (n.done) oldDone[n.text] = true; });
+    const oldDone = {}, oldHigh = {};
+    nodes.forEach(n => { if (n.done) oldDone[n.text] = true; if (n.priority === "high") oldHigh[n.text] = true; });
     nodes = layoutTree(parseList(listbox.value));
-    nodes.forEach(n => { if (oldDone[n.text]) n.done = true; });
-    saveLocal();
-    scheduleCloudPush();
-    render();
-    fitToView();
+    nodes.forEach(n => { if (oldDone[n.text]) n.done = true; if (oldHigh[n.text]) n.priority = "high"; });
+    saveLocal(); scheduleCloudPush(); render(); fitToView();
   }, 500);
 }
 
 listbox.addEventListener("input", syncListToMap);
-
 listbox.addEventListener("keydown", e => {
   if (e.key === "Tab") {
     e.preventDefault();
@@ -463,95 +630,132 @@ listbox.addEventListener("keydown", e => {
     const ls = val.lastIndexOf("\n", s-1) + 1;
     if (e.shiftKey) {
       const sp = val.substring(ls).match(/^ {1,2}/);
-      if (sp) {
-        listbox.value = val.substring(0, ls) + val.substring(ls + sp[0].length);
-        listbox.selectionStart = listbox.selectionEnd = s - sp[0].length;
-        syncListToMap();
-      }
+      if (sp) { listbox.value = val.substring(0, ls) + val.substring(ls + sp[0].length); listbox.selectionStart = listbox.selectionEnd = s - sp[0].length; syncListToMap(); }
     } else {
       listbox.value = val.substring(0, ls) + "  " + val.substring(ls);
-      listbox.selectionStart = listbox.selectionEnd = s + 2;
-      syncListToMap();
+      listbox.selectionStart = listbox.selectionEnd = s + 2; syncListToMap();
     }
   }
 });
 
 // ── Zoom ──
-function setZoom(z) {
-  zoom = Math.min(3, Math.max(0.25, z));
-  applyTransform();
-}
+function setZoom(z) { zoom = Math.min(3, Math.max(0.25, z)); applyTransform(); }
 
 canvas.addEventListener("wheel", e => {
-  if (e.ctrlKey || e.metaKey) {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    setZoom(zoom + delta);
-  }
+  if (e.ctrlKey || e.metaKey) { e.preventDefault(); setZoom(zoom + (e.deltaY > 0 ? -0.1 : 0.1)); }
 }, { passive: false });
 
 $("zoomIn").addEventListener("click", () => setZoom(zoom + 0.1));
 $("zoomOut").addEventListener("click", () => setZoom(zoom - 0.1));
 
 function fitToView() {
-  if (!nodes.length) return;
+  const displayNodes = activeFilter === "all" ? nodes : getFilteredView();
+  if (!displayNodes.length) return;
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  nodes.forEach(n => {
-    minX = Math.min(minX, n.x - 100);
-    maxX = Math.max(maxX, n.x + 100);
-    minY = Math.min(minY, n.y - 30);
-    maxY = Math.max(maxY, n.y + 30);
-  });
-  const treeW = maxX - minX, treeH = maxY - minY;
-  const vw = window.innerWidth, vh = window.innerHeight;
-  const padding = 80;
-  const scaleX = (vw - padding * 2) / treeW;
-  const scaleY = (vh - padding * 2) / treeH;
-  zoom = Math.min(scaleX, scaleY, 1.5);
+  displayNodes.forEach(n => { minX = Math.min(minX, n.x-100); maxX = Math.max(maxX, n.x+100); minY = Math.min(minY, n.y-30); maxY = Math.max(maxY, n.y+30); });
+  const treeW = maxX-minX, treeH = maxY-minY;
+  const vw = window.innerWidth, vh = window.innerHeight, pad = 80;
+  zoom = Math.min((vw-pad*2)/treeW, (vh-pad*2)/treeH, 1.5);
   zoom = Math.max(0.25, Math.min(3, zoom));
-  pan.x = (vw - treeW * zoom) / 2 - minX * zoom;
-  pan.y = (vh - treeH * zoom) / 2 - minY * zoom + 20;
+  pan.x = (vw-treeW*zoom)/2 - minX*zoom;
+  pan.y = (vh-treeH*zoom)/2 - minY*zoom + 20;
   applyTransform();
 }
-
 $("zoomFit").addEventListener("click", fitToView);
 
 // ── Canvas pan ──
 canvas.addEventListener("mousedown", e => {
   if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar") || e.target.closest("#zoomBadge")) return;
-  panning = true;
-  panStart = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-  canvas.style.cursor = "grabbing";
+  panning = true; panStart = { x: e.clientX-pan.x, y: e.clientY-pan.y }; canvas.style.cursor = "grabbing";
 });
 canvas.addEventListener("touchstart", e => {
   if (e.target.closest(".node") || e.target.closest("#panel") || e.target.closest("#topbar") || e.target.closest("#zoomBadge")) return;
-  const t = e.touches[0];
-  panning = true;
-  panStart = { x: t.clientX - pan.x, y: t.clientY - pan.y };
+  const t = e.touches[0]; panning = true; panStart = { x: t.clientX-pan.x, y: t.clientY-pan.y };
 }, { passive: true });
 
 window.addEventListener("mousemove", e => {
   if (dragging) {
+    // If still in hold phase and mouse moved significantly, cancel hold (user just wants single drag)
+    if (holdTimer) {
+      const n = nodes.find(n => n.id === dragging);
+      if (n) {
+        const curX = (e.clientX - pan.x) / zoom - dragOff.x;
+        const moved = Math.abs(curX - n.x);
+        if (moved > 5) clearHold(); // Moved too much, cancel group-drag hold
+      }
+    }
+
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = (e.clientX - pan.x) / zoom - dragOff.x; n.y = (e.clientY - pan.y) / zoom - dragOff.y; render(); }
+    if (n) {
+      const newX = (e.clientX - pan.x) / zoom - dragOff.x;
+      const newY = (e.clientY - pan.y) / zoom - dragOff.y;
+
+      if (groupDrag) {
+        // Move all descendants by the same delta
+        const dx = newX - dragStartPositions[n.id].x;
+        const dy = newY - dragStartPositions[n.id].y;
+        n.x = newX; n.y = newY;
+        dragDescendants.forEach(did => {
+          const dn = nodes.find(nd => nd.id === did);
+          if (dn && dragStartPositions[did]) {
+            dn.x = dragStartPositions[did].x + dx;
+            dn.y = dragStartPositions[did].y + dy;
+          }
+        });
+      } else {
+        n.x = newX; n.y = newY;
+      }
+      render();
+    }
+    // Update hold ring position
+    if (holdRing.className.includes("active") || holdRing.className.includes("locked")) {
+      holdRing.style.left = e.clientX + "px";
+      holdRing.style.top = e.clientY + "px";
+    }
   } else if (panning) {
-    pan = { x: e.clientX - panStart.x, y: e.clientY - panStart.y };
-    applyTransform();
+    pan = { x: e.clientX-panStart.x, y: e.clientY-panStart.y }; applyTransform();
   }
 });
+
 window.addEventListener("touchmove", e => {
   const t = e.touches[0];
   if (dragging) {
+    if (holdTimer) {
+      const n = nodes.find(n => n.id === dragging);
+      if (n) { const curX = (t.clientX-pan.x)/zoom-dragOff.x; if (Math.abs(curX-n.x)>5) clearHold(); }
+    }
     const n = nodes.find(n => n.id === dragging);
-    if (n) { n.x = (t.clientX - pan.x) / zoom - dragOff.x; n.y = (t.clientY - pan.y) / zoom - dragOff.y; render(); }
+    if (n) {
+      const newX = (t.clientX-pan.x)/zoom-dragOff.x, newY = (t.clientY-pan.y)/zoom-dragOff.y;
+      if (groupDrag) {
+        const dx = newX-dragStartPositions[n.id].x, dy = newY-dragStartPositions[n.id].y;
+        n.x = newX; n.y = newY;
+        dragDescendants.forEach(did => { const dn = nodes.find(nd => nd.id===did); if (dn && dragStartPositions[did]) { dn.x=dragStartPositions[did].x+dx; dn.y=dragStartPositions[did].y+dy; } });
+      } else { n.x = newX; n.y = newY; }
+      render();
+    }
+    if (holdRing.className) { holdRing.style.left = t.clientX+"px"; holdRing.style.top = t.clientY+"px"; }
   } else if (panning) {
-    pan = { x: t.clientX - panStart.x, y: t.clientY - panStart.y };
-    applyTransform();
+    pan = { x: t.clientX-panStart.x, y: t.clientY-panStart.y }; applyTransform();
   }
 }, { passive: false });
 
-window.addEventListener("mouseup", () => { dragging = null; panning = false; canvas.style.cursor = "default"; });
-window.addEventListener("touchend", () => { dragging = null; panning = false; });
+window.addEventListener("mouseup", () => { dragging = null; panning = false; groupDrag = false; dragDescendants = []; dragStartPositions = {}; clearHold(); canvas.style.cursor = "default"; render(); });
+window.addEventListener("touchend", () => { dragging = null; panning = false; groupDrag = false; dragDescendants = []; dragStartPositions = {}; clearHold(); });
+
+// ── Filter ──
+$("filterAll").addEventListener("click", () => {
+  activeFilter = "all";
+  $("filterAll").className = "fpill active-all";
+  $("filterHigh").className = "fpill";
+  render(); fitToView();
+});
+$("filterHigh").addEventListener("click", () => {
+  activeFilter = "high";
+  $("filterHigh").className = "fpill active-high";
+  $("filterAll").className = "fpill";
+  render(); fitToView();
+});
 
 // ── Toggle panel ──
 let showList = true;
@@ -564,31 +768,125 @@ toggleBtn.addEventListener("click", () => {
 
 // ── Sync panel toggle ──
 let syncOpen = false;
-$("syncToggle").addEventListener("click", () => {
-  syncOpen = !syncOpen;
-  $("syncBody").classList.toggle("open", syncOpen);
-  $("syncArrow").classList.toggle("open", syncOpen);
-});
+$("syncToggle").addEventListener("click", () => { syncOpen = !syncOpen; $("syncBody").classList.toggle("open", syncOpen); $("syncArrow").classList.toggle("open", syncOpen); });
 
-// Load cloud config into inputs
 const cloudCfg = getCloudConfig();
 $("apiKeyInput").value = cloudCfg.apiKey;
 $("binIdInput").value = cloudCfg.binId;
-
-$("syncSaveBtn").addEventListener("click", () => {
-  const apiKey = $("apiKeyInput").value.trim();
-  const binId = $("binIdInput").value.trim();
-  saveCloudConfig(apiKey, binId);
-  setSyncStatus("Config saved", "ok");
-});
-
+$("syncSaveBtn").addEventListener("click", () => { saveCloudConfig($("apiKeyInput").value.trim(), $("binIdInput").value.trim()); setSyncStatus("Config saved", "ok"); });
 $("syncNowBtn").addEventListener("click", () => cloudPush());
 $("syncPullBtn").addEventListener("click", () => cloudPull());
+
+// ── AI section ──
+let aiOpen = false;
+$("aiToggle").addEventListener("click", () => { aiOpen = !aiOpen; $("aiBody").classList.toggle("open", aiOpen); $("aiArrow").classList.toggle("open", aiOpen); });
+
+function getGroqKey() { return localStorage.getItem("taskmap_groq_key") || ""; }
+function saveGroqKey(k) { localStorage.setItem("taskmap_groq_key", k); }
+
+$("groqKeyInput").value = getGroqKey();
+$("groqKeySave").addEventListener("click", () => {
+  saveGroqKey($("groqKeyInput").value.trim());
+  setAiStatus("Key saved", "ok");
+});
+
+function setAiStatus(msg, type) {
+  const el = $("aiStatus");
+  el.textContent = msg;
+  el.className = type === "ok" ? "ok" : type === "err" ? "err" : type === "loading" ? "loading" : "";
+}
+
+async function callGroq(freeformText, mode) {
+  const key = getGroqKey();
+  if (!key) { setAiStatus("Set your Groq API key first", "err"); return null; }
+  if (!freeformText.trim()) { setAiStatus("Type something first", "err"); return null; }
+
+  setAiStatus("Thinking...", "loading");
+
+  const currentList = listbox.value.trim();
+
+  let systemPrompt = `You convert freeform task descriptions into a clean indented task list.
+
+Rules:
+- Use 2-space indentation for hierarchy
+- No bullets, dashes, or markers. Just plain text with indentation.
+- Keep task names short and actionable
+- Infer logical grouping and hierarchy from context
+- Output ONLY the indented list, nothing else. No explanation, no markdown, no code fences.
+
+Example input: "I need to research competitors, do user interviews, also design wireframes and a prototype, then build the frontend and backend"
+
+Example output:
+Research
+  Competitor analysis
+  User interviews
+Design
+  Wireframes
+  Prototype
+Build
+  Frontend
+  Backend`;
+
+  if (mode === "append" && currentList) {
+    systemPrompt += `\n\nThe user already has this task list:\n${currentList}\n\nAdd the new tasks to this existing list. Keep the existing structure intact. Merge logically if there's overlap. Output the COMPLETE updated list.`;
+  }
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: freeformText }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || "API error " + res.status);
+    }
+
+    const data = await res.json();
+    const output = data.choices?.[0]?.message?.content?.trim();
+
+    if (!output) throw new Error("Empty response from Llama");
+
+    setAiStatus("Done", "ok");
+    return output;
+  } catch(e) {
+    setAiStatus(e.message, "err");
+    return null;
+  }
+}
+
+$("aiAppendBtn").addEventListener("click", async () => {
+  const result = await callGroq($("aiInput").value, "append");
+  if (result) {
+    listbox.value = result;
+    $("aiInput").value = "";
+    syncListToMap();
+  }
+});
+
+$("aiReplaceBtn").addEventListener("click", async () => {
+  const result = await callGroq($("aiInput").value, "replace");
+  if (result) {
+    listbox.value = result;
+    $("aiInput").value = "";
+    syncListToMap();
+  }
+});
 
 // ── Export / Import / Reset ──
 $("exportBtn").addEventListener("click", () => {
   const doneTexts = nodes.filter(n => n.done).map(n => n.text);
-  const blob = new Blob([JSON.stringify({ listText: listbox.value, doneTexts }, null, 2)], { type: "application/json" });
+  const highTexts = nodes.filter(n => n.priority === "high").map(n => n.text);
+  const blob = new Blob([JSON.stringify({ listText: listbox.value, doneTexts, highTexts }, null, 2)], { type: "application/json" });
   const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "taskmap-backup.json"; a.click();
 });
 
@@ -603,8 +901,8 @@ $("importBtn").addEventListener("click", () => {
         if (d.listText) {
           listbox.value = d.listText;
           nodes = layoutTree(parseList(d.listText));
-          const ds = new Set(d.doneTexts || []);
-          nodes.forEach(n => { if (ds.has(n.text)) n.done = true; });
+          const ds = new Set(d.doneTexts||[]), hs = new Set(d.highTexts||[]);
+          nodes.forEach(n => { if (ds.has(n.text)) n.done = true; if (hs.has(n.text)) n.priority = "high"; });
           saveLocal(); scheduleCloudPush(); render();
         }
       } catch(err) { alert("Invalid file."); }
@@ -616,10 +914,8 @@ $("importBtn").addEventListener("click", () => {
 
 $("resetBtn").addEventListener("click", () => {
   if (confirm("Clear everything and start fresh?")) {
-    listbox.value = SAMPLE;
-    nodes = layoutTree(parseList(SAMPLE));
-    localStorage.removeItem("taskmap_data");
-    render();
+    listbox.value = SAMPLE; nodes = layoutTree(parseList(SAMPLE));
+    localStorage.removeItem("taskmap_data"); render();
   }
 });
 
@@ -627,7 +923,7 @@ $("resetBtn").addEventListener("click", () => {
 const saved = loadLocal();
 listbox.value = saved.listText;
 nodes = layoutTree(parseList(saved.listText));
-nodes.forEach(n => { if (saved.doneSet.has(n.text)) n.done = true; });
+nodes.forEach(n => { if (saved.doneSet.has(n.text)) n.done = true; if (saved.highSet.has(n.text)) n.priority = "high"; });
 render();
 fitToView();
 </script>
