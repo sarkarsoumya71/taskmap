@@ -95,7 +95,7 @@
   #world{position:absolute;top:0;left:0;transform-origin:0 0}
   #lines{position:absolute;top:0;left:0;width:20000px;height:20000px;pointer-events:none;z-index:1;overflow:visible}
 
-  .node{position:absolute;transform:translate(-50%,-50%);border-radius:8px;padding:8px 12px;white-space:nowrap;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px;z-index:10;transition:opacity .25s,box-shadow .2s}
+  .node{position:absolute;transform:translate(-50%,-50%);border-radius:8px;padding:8px 12px;white-space:nowrap;cursor:grab;user-select:none;display:flex;align-items:center;gap:8px;z-index:10;transition:opacity .25s,box-shadow .2s;overflow:visible}
   .node.root{border:1px solid #5b5bd6;box-shadow:0 0 16px rgba(91,91,214,.25)}
   .node.child{border:1px solid #2a2a3e;box-shadow:0 2px 6px rgba(0,0,0,.3)}
   .node.done-self{background:rgba(20,20,32,.5)}
@@ -107,7 +107,7 @@
   .chk{width:16px;height:16px;min-width:16px;border-radius:3px;border:2px solid #2a2a3e;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0;flex-shrink:0}
   .chk.checked{border-color:#3dd68c;background:#3dd68c;box-shadow:0 0 8px rgba(61,214,140,.2)}
 
-  .pri-dot{width:8px;height:8px;min-width:8px;border-radius:50%;cursor:pointer;transition:all .2s;flex-shrink:0}
+  .pri-dot{width:12px;height:12px;min-width:12px;border-radius:50%;cursor:pointer;transition:all .2s;flex-shrink:0}
   .pri-dot.normal{background:#2a2a3e}
   .pri-dot.normal:hover{background:#e5484d}
   .pri-dot.high{background:#e5484d;box-shadow:0 0 6px rgba(229,72,77,.4)}
@@ -118,6 +118,9 @@
 
   .node-edit{background:transparent;border:none;border-bottom:1px solid #5b5bd6;color:#e0e0f0;font-size:12.5px;font-family:'IBM Plex Sans',sans-serif;font-weight:400;outline:none;width:100%;min-width:60px}
   .node.root .node-edit{font-size:14px;font-weight:600}
+  .node-del{position:absolute;top:-8px;right:-8px;width:18px;height:18px;border-radius:50%;border:1px solid #2a2a3e;background:#141420;color:#7a7a9a;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;padding:0;opacity:0;transition:all .15s;font-family:'IBM Plex Sans',sans-serif;z-index:20}
+  .node:hover .node-del{opacity:1}
+  .node-del:hover{border-color:#e5484d;color:#e5484d;background:#1a1015}
 </style>
 </head>
 <body>
@@ -243,7 +246,7 @@ let editingId = null, debounceTimer = null, skipSync = false;
 let cloudTimer = null;
 let activeFilter = "all"; // "all" or "high"
 
-const HOLD_DURATION = 1500; // ms to hold for group drag
+const HOLD_DURATION = 500; // ms to hold for group drag
 
 const $ = id => document.getElementById(id);
 const listbox = $("listbox"), world = $("world"), linesSvg = $("lines");
@@ -330,6 +333,14 @@ function ancestorDone(nodeId) {
   let cur = byId[nodeId];
   while (cur && cur.parent) { const p = byId[cur.parent]; if (p && p.done) return true; cur = p; }
   return false;
+}
+
+function deleteNode(nodeId) {
+  const toRemove = new Set([nodeId, ...getDescendants(nodeId)]);
+  nodes = nodes.filter(n => !toRemove.has(n.id));
+  skipSync = true;
+  listbox.value = serializeNodes(nodes);
+  saveLocal(); scheduleCloudPush(); render();
 }
 
 // ── Priority filter view ──
@@ -532,9 +543,8 @@ function render() {
     if (effectiveDone) {
       chk.innerHTML = '<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 6.5L5 9L9.5 3.5" stroke="#0a0a0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     }
-    chk.addEventListener("click", e => {
-      e.stopPropagation();
-      // Find the real node (not filtered copy)
+    chk.addEventListener("pointerdown", e => {
+      e.stopPropagation(); e.preventDefault();
       const real = nodes.find(rn => rn.text === n.text);
       if (real) { real.done = !real.done; saveLocal(); scheduleCloudPush(); render(); }
     });
@@ -544,8 +554,8 @@ function render() {
     const dot = document.createElement("div");
     dot.className = "pri-dot " + (isHighPri ? "high" : "normal");
     dot.title = isHighPri ? "Remove high priority" : "Set high priority";
-    dot.addEventListener("click", e => {
-      e.stopPropagation();
+    dot.addEventListener("pointerdown", e => {
+      e.stopPropagation(); e.preventDefault();
       const real = nodes.find(rn => rn.text === n.text);
       if (real) { real.priority = real.priority === "high" ? "normal" : "high"; saveLocal(); scheduleCloudPush(); render(); }
     });
@@ -575,7 +585,7 @@ function render() {
 
     // Drag handlers
     div.addEventListener("mousedown", e => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot") || e.target.classList.contains("node-del")) return;
       dragging = n.id;
       groupDrag = false;
       dragDescendants = [];
@@ -584,7 +594,7 @@ function render() {
       e.preventDefault();
     });
     div.addEventListener("touchstart", e => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot") || e.target.classList.contains("node-del")) return;
       const t = e.touches[0];
       dragging = n.id;
       groupDrag = false;
@@ -594,9 +604,20 @@ function render() {
     }, { passive: true });
 
     div.addEventListener("dblclick", e => {
-      if (e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot")) return;
+      if (e.target.tagName === "BUTTON" || e.target.closest("button") || e.target.classList.contains("pri-dot") || e.target.classList.contains("node-del")) return;
       editingId = n.id; render();
     });
+
+    // Delete button
+    const del = document.createElement("button");
+    del.className = "node-del";
+    del.innerHTML = "&#215;";
+    del.title = "Delete task";
+    del.addEventListener("pointerdown", e => {
+      e.stopPropagation(); e.preventDefault();
+      deleteNode(n.id);
+    });
+    div.appendChild(del);
 
     world.appendChild(div);
   });
@@ -614,11 +635,29 @@ function syncListToMap() {
   if (skipSync) { skipSync = false; return; }
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    const oldDone = {}, oldHigh = {};
-    nodes.forEach(n => { if (n.done) oldDone[n.text] = true; if (n.priority === "high") oldHigh[n.text] = true; });
+    // Snapshot old states keyed by text
+    const oldStates = {};
+    nodes.forEach(n => {
+      oldStates[n.text] = { x: n.x, y: n.y, done: n.done, priority: n.priority };
+    });
+
+    const oldCount = nodes.length;
     nodes = layoutTree(parseList(listbox.value));
-    nodes.forEach(n => { if (oldDone[n.text]) n.done = true; if (oldHigh[n.text]) n.priority = "high"; });
-    saveLocal(); scheduleCloudPush(); render(); fitToView();
+
+    // Restore positions/states for existing nodes, only new nodes get layout positions
+    nodes.forEach(n => {
+      if (oldStates[n.text]) {
+        n.x = oldStates[n.text].x;
+        n.y = oldStates[n.text].y;
+        n.done = oldStates[n.text].done;
+        n.priority = oldStates[n.text].priority;
+      }
+    });
+
+    saveLocal(); scheduleCloudPush(); render();
+
+    // Only auto-fit if node count changed significantly (new nodes added)
+    if (Math.abs(nodes.length - oldCount) > 0 && oldCount === 0) fitToView();
   }, 500);
 }
 
